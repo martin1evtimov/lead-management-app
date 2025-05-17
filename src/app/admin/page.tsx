@@ -41,7 +41,7 @@ export default function AdminPage() {
   };
 
   const filteredLeads = leads.filter((lead: Lead) => {
-    const matchesSearch = lead.firstName.toLowerCase().includes(search.toLowerCase());
+    const matchesSearch = lead.firstName.toLowerCase().includes(search.toLowerCase()) || lead.lastName.toLowerCase().includes(search.toLowerCase());;
     const matchesStatus = statusFilter === "All" || statusFilter === "" || lead.status === statusFilter;
     return matchesSearch && matchesStatus;
   });
