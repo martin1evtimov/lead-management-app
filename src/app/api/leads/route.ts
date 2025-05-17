@@ -1,5 +1,7 @@
 import { NextResponse } from "next/server";
+// eslint-disable-next-line
 import fs from "fs/promises";
+// eslint-disable-next-line 
 import path from "path";
 import { Lead } from "../../leadsSlice"
 
@@ -30,28 +32,27 @@ export async function POST(request: Request) {
 
   const resumeFile = formData.get('resume') as File | null;
 
-  let resumeName = '';
-  let resumeSize = 0;
+  const resumeName = resumeFile?.name || '';
+  const resumeSize = resumeFile?.size || 0;
 
-  if (resumeFile) {
-    resumeName = resumeFile.name;
-    resumeSize = resumeFile.size;
+  //Since Vercel is read-only I can't save the files local for now. They will not be saved. Locally you can uncomment the code below line 38-56
 
-    // Convert file to buffer
-    const buffer = Buffer.from(await resumeFile.arrayBuffer());
+  // if (resumeFile) {
+  //   // Convert file to buffer
+  //   const buffer = Buffer.from(await resumeFile.arrayBuffer());
 
-    // Define save directory path (relative to your project root)
-    const saveDir = path.resolve('src/app/', 'resume_files');
+  //   // Define save directory path (relative to your project root)
+  //   const saveDir = path.resolve('src/app/', 'resume_files');
 
-    // Ensure directory exists or create it
-    await fs.mkdir(saveDir, { recursive: true });
+  //   // Ensure directory exists or create it
+  //   await fs.mkdir(saveDir, { recursive: true });
 
-    // Save path for the file (make sure filename is safe!)
-    const savePath = path.join(saveDir, resumeName);
+  //   // Save path for the file (make sure filename is safe!)
+  //   const savePath = path.join(saveDir, resumeName);
 
-    // Write file to disk
-    await fs.writeFile(savePath, buffer);
-  }
+  //   // Write file to disk
+  //   await fs.writeFile(savePath, buffer);
+  // }
 
   const newLead: Lead = {
     id: leads.length + 1,
