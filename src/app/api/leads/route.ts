@@ -30,7 +30,7 @@ export async function POST(request: Request) {
 
   const resumeFile = formData.get('resume') as File | null;
 
-  let resumeName = null;
+  let resumeName = '';
   let resumeSize = 0;
 
   if (resumeFile) {
@@ -53,7 +53,7 @@ export async function POST(request: Request) {
     await fs.writeFile(savePath, buffer);
   }
 
-  const newLead = {
+  const newLead: Lead = {
     id: leads.length + 1,
     firstName,
     lastName,

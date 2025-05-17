@@ -15,12 +15,12 @@ A simple full-stack application for collecting and managing candidate leads.
 
 ## 🔗 Live Demo
 
-📍 [View on Vercel](https://your-vercel-link.vercel.app)
+📍 [View on Vercel](www.martin-lead-management-app.com)
 
 ## 🔐 Admin Access
 
 To access the admin panel, go to:  
-`https://your-vercel-link.vercel.app/admin`
+`https://www.martin-lead-management-app.com/admin`
 
 > username: ***admin*** and password: ***password123***
 
