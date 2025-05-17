@@ -3,7 +3,7 @@ import fs from "fs/promises";
 import path from "path";
 import { Lead } from "../../leadsSlice"
 
-let leads: Lead[] = [
+const leads: Lead[] = [
 ];
 
 export async function GET() {

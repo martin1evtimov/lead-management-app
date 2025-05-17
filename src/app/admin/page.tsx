@@ -1,7 +1,6 @@
 'use client';
 
 import { useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
 import { useDispatch, useSelector } from "react-redux";
 import { setLeads, updateLeadStatus, Lead } from "../leadsSlice";
 import { RootState, AppDispatch } from "../store";
