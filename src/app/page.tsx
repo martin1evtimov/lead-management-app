@@ -1,103 +1,223 @@
-import Image from "next/image";
+'use client';
+
+import { useState } from 'react';
+import { useRouter } from 'next/navigation';
 
 export default function Home() {
-  return (
-    <div className="grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20 font-[family-name:var(--font-geist-sans)]">
-      <main className="flex flex-col gap-[32px] row-start-2 items-center sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={180}
-          height={38}
-          priority
-        />
-        <ol className="list-inside list-decimal text-sm/6 text-center sm:text-left font-[family-name:var(--font-geist-mono)]">
-          <li className="mb-2 tracking-[-.01em]">
-            Get started by editing{" "}
-            <code className="bg-black/[.05] dark:bg-white/[.06] px-1 py-0.5 rounded font-[family-name:var(--font-geist-mono)] font-semibold">
-              src/app/page.tsx
-            </code>
-            .
-          </li>
-          <li className="tracking-[-.01em]">
-            Save and see your changes instantly.
-          </li>
-        </ol>
+   const [formData, setFormData] = useState({
+    firstName: '',
+    lastName: '',
+    email: '',
+    country: '',
+    linkedin: '',
+    visas: [] as string[],
+    additionalInfo: '',
+    resume: null as File | null,
+  });
 
-        <div className="flex gap-4 items-center flex-col sm:flex-row">
-          <a
-            className="rounded-full border border-solid border-transparent transition-colors flex items-center justify-center bg-foreground text-background gap-2 hover:bg-[#383838] dark:hover:bg-[#ccc] font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 sm:w-auto"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={20}
-              height={20}
-            />
-            Deploy now
-          </a>
-          <a
-            className="rounded-full border border-solid border-black/[.08] dark:border-white/[.145] transition-colors flex items-center justify-center hover:bg-[#f2f2f2] dark:hover:bg-[#1a1a1a] hover:border-transparent font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 w-full sm:w-auto md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Read our docs
-          </a>
+  const visaOptions = ['O-1', 'EB-1A', 'EB-2 NIW', "I don't know"];
+  const [visaError, setVisaError] = useState('');
+  const router = useRouter();
+
+  const handleVisaChange = (value: string) => {
+    setFormData(prev => {
+      const visas = prev.visas.includes(value)
+        ? prev.visas.filter(v => v !== value)
+        : [...prev.visas, value];
+      return { ...prev, visas };
+    });
+  };
+
+  const handleChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>
+  ) => {
+    const { name, value } = e.target;
+    setFormData(prev => ({ ...prev, [name]: value }));
+  };
+
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0] || null;
+    setFormData(prev => ({ ...prev, resume: file }));
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
+  e.preventDefault();
+
+  if (formData.visas.length === 0) {
+    setVisaError('Please select at least one visa category.');
+    return;
+  } else {
+    setVisaError('');
+  }
+
+  if (!formData.resume) {
+    alert('Please upload your resume or CV.');
+    return;
+  }
+
+  const payload = new FormData();
+  payload.append('firstName', formData.firstName);
+  payload.append('lastName', formData.lastName);
+  payload.append('email', formData.email);
+  payload.append('country', formData.country);
+  payload.append('linkedin', formData.linkedin);
+  payload.append('visas', JSON.stringify(formData.visas));
+  payload.append('additionalInfo', formData.additionalInfo);
+  if (formData.resume) {
+    payload.append('resume', formData.resume);
+  }
+
+  try {
+    const response = await fetch('/api/leads', {
+      method: 'POST',
+      body: payload,
+      // DO NOT set Content-Type header manually here! Let browser set it for FormData
+    });
+
+    if (!response.ok) {
+      throw new Error(`Error: ${response.statusText}`);
+    }
+
+    const result = await response.json();
+    console.log('Success:', result);
+    router.push('/thank-you');
+  } catch (error) {
+    console.error('Failed to submit:', error);
+    alert('Failed to submit the form, please try again.');
+  }
+};
+
+
+  return (
+    <main className="min-h-screen bg-white font-sans text-black">
+      <section className="bg-[#d6d497] px-6 py-12 text-center">
+        <h1 className="text-lg font-bold mb-2">almà</h1>
+        <h2 className="text-4xl md:text-5xl font-extrabold leading-tight">
+          Get An Assessment <br /> Of Your Immigration Case
+        </h2>
+      </section>
+
+      <section className="max-w-xl mx-auto px-6 py-12">
+        <div className="text-center mb-6">
+          <div className="text-5xl mb-2">📄</div>
+          <h3 className="text-xl font-bold">Want to understand your visa options?</h3>
+          <p className="text-sm text-gray-700 mt-2">
+            Submit the form below and our team of experienced attorneys will review your information
+            and send a preliminary assessment of your case based on your goals.
+          </p>
         </div>
-      </main>
-      <footer className="row-start-3 flex gap-[24px] flex-wrap items-center justify-center">
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/file.svg"
-            alt="File icon"
-            width={16}
-            height={16}
+
+        <form onSubmit={handleSubmit} className="space-y-4" encType="multipart/form-data">
+          <input
+            type="text"
+            name="firstName"
+            placeholder="First Name"
+            required
+            value={formData.firstName}
+            onChange={handleChange}
+            className="w-full border rounded-md px-4 py-2"
           />
-          Learn
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/window.svg"
-            alt="Window icon"
-            width={16}
-            height={16}
+          <input
+            type="text"
+            name="lastName"
+            placeholder="Last Name"
+            required
+            value={formData.lastName}
+            onChange={handleChange}
+            className="w-full border rounded-md px-4 py-2"
           />
-          Examples
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/globe.svg"
-            alt="Globe icon"
-            width={16}
-            height={16}
+          <input
+            type="email"
+            name="email"
+            placeholder="Email"
+            required
+            value={formData.email}
+            onChange={handleChange}
+            className="w-full border rounded-md px-4 py-2"
           />
-          Go to nextjs.org →
-        </a>
-      </footer>
-    </div>
+          <select
+            name="country"
+            required
+            value={formData.country}
+            onChange={handleChange}
+            className="w-full border rounded-md px-4 py-2 text-gray-700"
+          >
+            <option value="">Country of Citizenship</option>
+            <option value="USA">USA</option>
+            <option value="UK">UK</option>
+            <option value="Germany">Germany</option>
+            <option value="Other">Other</option>
+          </select>
+          <input
+            type="url"
+            name="linkedin"
+            placeholder="LinkedIn / Personal Website URL"
+            required
+            value={formData.linkedin}
+            onChange={handleChange}
+            className="w-full border rounded-md px-4 py-2"
+          />
+
+          {/* Resume Upload */}
+          <div>
+            <label className="block font-medium mb-1">Upload Resume / CV</label>
+            <input
+              type="file"
+              name="resume"
+              accept=".pdf,.doc,.docx"
+              required
+              onChange={handleFileChange}
+              className="w-full border rounded-md px-4 py-2"
+            />
+            {formData.resume && (
+              <p className="text-sm text-gray-600 mt-1">Selected: {formData.resume.name}</p>
+            )}
+          </div>
+
+          {/* Visa options */}
+          <div className="mt-8">
+            <div className="text-4xl text-center">🎲</div>
+            <h4 className="text-md font-bold text-center mb-2 mt-2">Visa categories of interest?</h4>
+            <div className="space-y-2">
+              {visaOptions.map((visa) => (
+                <label key={visa} className="block">
+                  <input
+                    type="checkbox"
+                    value={visa}
+                    checked={formData.visas.includes(visa)}
+                    onChange={() => handleVisaChange(visa)}
+                    className="mr-2"
+                  />
+                  {visa}
+                </label>
+              ))}
+            </div>
+            {visaError && <p className="text-red-500 text-sm mt-1">{visaError}</p>}
+          </div>
+
+          {/* Additional info */}
+          <div className="mt-8">
+            <div className="text-4xl text-center">💜</div>
+            <h4 className="text-md font-bold text-center mb-2 mt-2">How can we help you?</h4>
+            <textarea
+              name="additionalInfo"
+              placeholder="What is your current status and when does it expire?..."
+              rows={5}
+              required
+              value={formData.additionalInfo}
+              onChange={handleChange}
+              className="w-full border rounded-md px-4 py-2"
+            />
+          </div>
+
+          <button
+            type="submit"
+            className="w-full mt-4 bg-black text-white font-bold py-2 rounded-md hover:bg-gray-800 transition"
+          >
+            Submit
+          </button>
+        </form>
+      </section>
+    </main>
   );
 }
